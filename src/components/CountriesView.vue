@@ -14,6 +14,7 @@
     <p>Cargando paises...</p>
   </div>
 
+  <!--Mensaje si no hay resultados-->
   <div v-if="!loading && !buscando && paisesFiltrados.length === 0" class="no-results">
     No hay paises para mostrar
     <br>
@@ -60,6 +61,8 @@ const busqueda = ref("")
 
 onMounted(async () => {
 
+  const inicio = Date.now()
+
   const respuesta = await fetch(
   "https://restcountries.com/v3.1/all?fields=name,flags,capital,region,subregion,population,languages,currencies"
   )
@@ -67,9 +70,17 @@ onMounted(async () => {
   const data = await respuesta.json()
 
   paises.value = data
-  loading.value = false
+  
+  /*Retardo para que se carguen los datos */
+  const tiempo = Date.now() - inicio
+  const restante = 2000 - tiempo
+
+  setTimeout (() => {
+    loading.value = false
+  }, restante > 0 ? restante : 0)
 
 })
+
 /*Filtro de busqueda */
 const paisesFiltrados = computed (() => {
   return paises.value.filter(pais =>

@@ -90,7 +90,8 @@ watch (busqueda, () => {
 <style>
 
 .page{
-  max-width:1200px;
+  width:100%;
+  max-width: 1400px;
   margin:auto;
   padding:40px;
   font-family:Segoe UI;
@@ -134,7 +135,7 @@ h2{
 
 .countries{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
   gap:20px;
 }
 

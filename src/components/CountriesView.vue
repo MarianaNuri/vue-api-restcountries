@@ -4,7 +4,14 @@
 
   <h2>Lista de países del mundo</h2>
 
-  <div class="countries">
+  <!--Indicador de carga-->
+  <p v-if="loading">Cargando paises...</p>
+
+  <p v-if="!loading && paises.length === 0">
+    No hay paises para mostrar
+  </p>
+
+  <div class="countries" v-if="!loading && paises.length > 0">
 
     <!-- LISTA GENERADA CON v-for -->
 
@@ -38,6 +45,7 @@
 import { ref, onMounted } from "vue"
 
 const paises = ref([])
+const loading = ref(true)
 
 onMounted(async () => {
 
@@ -48,6 +56,7 @@ onMounted(async () => {
   const data = await respuesta.json()
 
   paises.value = data
+  loading.value = false
 
 })
 

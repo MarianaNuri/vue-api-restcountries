@@ -2,29 +2,42 @@
 
 <div class="page">
 
-  <h2>Lista de países del mundo</h2>
+  <h2>Explorador de Países</h2>
 
-  <!--Campo de busqueda-->
-  <input type="text" placeholder="Buscar pais ..." v-model="busqueda" class="search">
+  <!-- Campo de búsqueda -->
+  <input
+    type="text"
+    placeholder="Buscar país..."
+    v-model="busqueda"
+    class="search"
+  >
 
-  <!--USO DEL v-if-->
-  <!--Indicador de carga con v-if-->
+  <!-- CONTADOR DE RESULTADOS -->
+  <p class="contador">
+    Mostrando {{ paisesFiltrados.length }} de {{ paises.length }} países
+  </p>
+
+  <!-- Indicador de carga -->
   <div v-if="loading || buscando" class="loader-container">
     <div class="loader"></div>
-    <p>Cargando paises...</p>
+    <p>Cargando países...</p>
   </div>
 
-  <!--Mensaje si no hay resultados-->
-  <div v-if="!loading && !buscando && paisesFiltrados.length === 0" class="no-results">
-    No hay paises para mostrar
+  <!-- Mensaje si no hay resultados -->
+  <div
+    v-if="!loading && !buscando && paisesFiltrados.length === 0"
+    class="no-results"
+  >
+    No hay países para mostrar
     <br>
-    Intenta escribir otro
-
+    Intenta escribir otro nombre
   </div>
 
-  <div class="countries" v-if="!loading && paisesFiltrados.length > 0">
-
-    <!-- LISTA GENERADA CON v-for -->
+  <!-- Lista de países -->
+  <div
+    class="countries"
+    v-if="!loading && !buscando && paisesFiltrados.length > 0"
+  >
 
     <div
       class="card"
@@ -42,6 +55,10 @@
 
       <p><strong>Población:</strong> {{ pais.population.toLocaleString() }}</p>
 
+      <p><strong>Subregión:</strong> {{ pais.subregion }}</p>
+
+      <p><strong>Idioma:</strong> {{ Object.values(pais.languages || {}).join(", ") }}</p>
+
     </div>
 
   </div>
@@ -52,61 +69,91 @@
 
 
 <script setup>
+
 import { ref, onMounted, computed, watch } from "vue"
+
+/* VARIABLES REACTIVAS */
 
 const paises = ref([])
 const loading = ref(true)
 const buscando = ref(false)
 const busqueda = ref("")
 
+/* CONSUMO DE API */
+
 onMounted(async () => {
 
   const inicio = Date.now()
 
-  const respuesta = await fetch(
-  "https://restcountries.com/v3.1/all?fields=name,flags,capital,region,subregion,population,languages,currencies"
-  )
+  try {
 
-  const data = await respuesta.json()
+    const respuesta = await fetch(
+      "https://restcountries.com/v3.1/all?fields=name,flags,capital,region,subregion,population,languages,currencies"
+    )
 
-  paises.value = data
-  
-  /*Retardo para que se carguen los datos */
+    const data = await respuesta.json()
+
+    paises.value = data
+
+  } catch (error) {
+
+    console.error("No fue posible obtener los datos de la API", error)
+
+  }
+
   const tiempo = Date.now() - inicio
   const restante = 2000 - tiempo
 
-  setTimeout (() => {
+  setTimeout(() => {
     loading.value = false
   }, restante > 0 ? restante : 0)
 
 })
 
-/*Filtro de busqueda */
-const paisesFiltrados = computed (() => {
+/* FILTRO DE BUSQUEDA MEJORADO */
+
+const paisesFiltrados = computed(() => {
+
+  const texto = busqueda.value.toLowerCase()
+
   return paises.value.filter(pais =>
-    pais.name.common.toLowerCase().includes(busqueda.value.toLowerCase())
+
+    pais.name.common.toLowerCase().includes(texto) ||
+
+    pais.region?.toLowerCase().includes(texto) ||
+
+    pais.subregion?.toLowerCase().includes(texto) ||
+
+    pais.capital?.[0]?.toLowerCase().includes(texto)
+
   )
+
 })
 
-/*Tiempo de busqueda*/
-watch (busqueda, () => {
+/* INDICADOR DE BUSQUEDA */
+
+watch(busqueda, () => {
+
   buscando.value = true
 
   setTimeout(() => {
     buscando.value = false
-  }, 2000)
+  }, 600)
+
 })
 
 </script>
+
+
 <style>
+
 body{
   background:#f5f7fb;
 }
 
-
 .page{
   width:100%;
-  max-width: 1400px;
+  max-width:1400px;
   margin:auto;
   padding:40px;
   font-family:Segoe UI, sans-serif;
@@ -117,25 +164,50 @@ h2{
   margin-bottom:30px;
 }
 
+/* BUSCADOR */
+
+.search {
+  display:block;
+  margin:0 auto 10px auto;
+  padding:10px;
+  width:300px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+/* CONTADOR */
+
+.contador{
+  text-align:center;
+  margin-bottom:20px;
+  color:#555;
+  font-size:14px;
+}
+
+/* LOADER */
+
 .loader-container {
-  text-align: center;
-  margin-top: 30px;
+  text-align:center;
+  margin-top:30px;
 }
 
 .loader {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #42b883;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 10px auto;
+  border:6px solid #f3f3f3;
+  border-top:6px solid #42b883;
+  border-radius:50%;
+  width:40px;
+  height:40px;
+  animation:spin 1s linear infinite;
+  margin:0 auto 10px auto;
 }
 
 @keyframes spin{
-  0%{ transform: rotate(0deg);}
-  100%{ transform: rotate(360deg);}
+  0%{ transform:rotate(0deg);}
+  100%{ transform:rotate(360deg);}
 }
+
+/* MENSAJE SIN RESULTADOS */
 
 .no-results{
   text-align:center;
@@ -148,24 +220,18 @@ h2{
   border:1px solid #f5c6c6;
 }
 
+/* GRID DE PAISES */
+
 .countries{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:25px;
 }
 
-.search {
-  display: block;
-  margin: 0 auto 30px auto;
-  padding: 10px;
-  width: 300px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
+/* TARJETAS */
 
 .card{
- background:white;
+  background:white;
   border-radius:14px;
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,0.08);
@@ -195,13 +261,6 @@ h2{
   font-size:14px;
   color:#555;
   margin:5px 0;
-}
-
-
-.countries{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:25px;
 }
 
 </style>

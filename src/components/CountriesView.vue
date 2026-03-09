@@ -231,12 +231,15 @@ h2{
 /* TARJETAS */
 
 .card{
-  background:white;
+   background:white;
   border-radius:14px;
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,0.08);
   transition:0.25s;
   text-align:center;
+
+  max-width:320px;
+  margin:auto;
 }
 
 .card:hover{

@@ -99,13 +99,17 @@ watch (busqueda, () => {
 
 </script>
 <style>
+body{
+  background:#f5f7fb;
+}
+
 
 .page{
   width:100%;
   max-width: 1400px;
   margin:auto;
   padding:40px;
-  font-family:Segoe UI;
+  font-family:Segoe UI, sans-serif;
 }
 
 h2{
@@ -161,24 +165,43 @@ h2{
 }
 
 .card{
-  background:white;
-  border-radius:12px;
-  padding:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  transition:0.3s;
+ background:white;
+  border-radius:14px;
+  padding:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  transition:0.25s;
+  text-align:center;
 }
 
 .card:hover{
-  transform:translateY(-5px);
+  transform:translateY(-8px);
+  box-shadow:0 12px 25px rgba(0,0,0,0.15);
 }
 
 .card img{
   width:100%;
-  border-radius:8px;
+  height:150px;
+  object-fit:cover;
+  border-radius:10px;
 }
 
 .card h3{
-  margin-top:10px;
+  margin-top:12px;
+  font-size:20px;
+  color:#333;
+}
+
+.card p{
+  font-size:14px;
+  color:#555;
+  margin:5px 0;
+}
+
+
+.countries{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:25px;
 }
 
 </style>
